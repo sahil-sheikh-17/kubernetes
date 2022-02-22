@@ -1,0 +1,46 @@
+---
+- hosts: masters
+  become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: yes
+  connection: ssh
+  
+  tasks:
+    - name: initializing cluster setup 
+      shell: kubeadm init --pod-network-cidr=172.31.0.0/20 >> cluster.txt
+      args:
+        chdir: /root
+        creates: cluster.txt
+    
+
+    - debug: 
+        var: command_output.stdout_lines
+    
+    - name: creating .kube dir 
+      become: yes 
+      file: 
+        path: /root/.kube
+        state: directory 
+        mode: 0755
+
+
+
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        remote_src: yes
+        owner: root
+
+    - name : running some commands
+      become: yes 
+      command: sudo chmod 777 /root/.kube/config
+
+
+
+    - name: creating kubectl config
+      become: yes
+      become_user: root
+      command: kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.15/manifests/calico.yaml
