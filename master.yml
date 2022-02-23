@@ -14,8 +14,7 @@
         creates: cluster.txt
     
 
-    - debug: 
-        var: command_output.stdout_lines
+  
     
     - name: creating .kube dir 
       become: yes 
