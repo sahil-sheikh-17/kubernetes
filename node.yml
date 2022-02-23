@@ -1,0 +1,38 @@
+---
+- hosts: masters1
+  become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: get join commands
+      shell: kubeadm token create --print-join-command >> joincommands
+      args:
+        chdir: /root
+        creates: joincommands
+ 
+    - name: download file from master to ansible server 
+      fetch: 
+        src: /root/joincommands
+        dest:  /home/ubuntu/
+
+ 
+
+
+- hosts: workers
+  become: yes
+  become_method: sudo
+  become_user: root 
+  tasks:
+    - name: copy file from ansible server to workers nodes
+      copy:
+        src: /home/ubuntu/172.31.22.177/root
+        dest: /root 
+
+    - name: executing script
+      become: yes
+      command: cd /root
+      command: chmod 777 /root/root/joincommands
+      command: sh /root/root/joincommands
