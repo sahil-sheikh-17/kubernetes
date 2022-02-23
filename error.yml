@@ -1,0 +1,11 @@
+/etc/docker/daemon.json
+
+{
+    "exec-opts": ["native.cgroupdriver=systemd"]
+}
+
+
+
+sudo systemctl daemon-reload
+ sudo systemctl restart docker
+ sudo systemctl restart kubelet
